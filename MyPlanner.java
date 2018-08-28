@@ -12,7 +12,7 @@ class MyPlanner {
 
     startState.cost = 0.0;
     startState.parent = null;
-    beenthere.add(startState);
+    visited.add(startState);
     frontier.add(startState);
 
 
@@ -24,26 +24,28 @@ class MyPlanner {
       if(s.state.isEqual(goalState.state))
         return s;
 
-      for each action, a {
+      for(;;) { // each action, a {
         MyState child = transition(s, a); // compute the next state
         acost = action_cost(s, a); // compute the cost of the action
-        if(child is in beenthere) {
-          oldchild = beenthere.find(child)
+        if(visited.contains(child)) {
+          oldchild = visited.find(child);
+
           if(s.cost + acost < oldchild.cost) {
             oldchild.cost = s.cost + acost;
             oldchild.parent = s;
           }
-        }
-        else {
+        } else {
           child.cost = s.cost + acost;
           child.parent = s;
           frontier.add(child);
-          beenthere.add(child);
+          visited.add(child);
         }
+
       }
     }
+
     throw new RuntimeException("There is no path to the goal");
   }
 
-  
+
 }

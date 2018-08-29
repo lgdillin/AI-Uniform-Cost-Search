@@ -6,7 +6,7 @@ class MyPlanner {
 
   }
 
-  void uniform_cost_search(MyState startState, MyState goalState) {
+  MyState uniform_cost_search(MyState startState, MyState goalState) {
     TreeSet<MyState> frontier = new TreeSet<MyState>();
     TreeSet<MyState> visited = new TreeSet<MyState>();
 
@@ -21,14 +21,14 @@ class MyPlanner {
       // get lowest-cost state
       MyState s = frontier.first();
 
-      if(s.state.isEqual(goalState.state))
+      if(s.state.equals(goalState.state))
         return s;
 
       for(;;) { // each action, a {
         MyState child = transition(s, a); // compute the next state
-        acost = action_cost(s, a); // compute the cost of the action
+        double acost = action_cost(s, a); // compute the cost of the action
         if(visited.contains(child)) {
-          oldchild = visited.find(child);
+          MyState oldchild = visited.find(child);
 
           if(s.cost + acost < oldchild.cost) {
             oldchild.cost = s.cost + acost;

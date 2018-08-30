@@ -1,4 +1,5 @@
 import java.util.TreeSet;
+import java.util.TreeMap;
 
 class MyPlanner {
 
@@ -8,7 +9,7 @@ class MyPlanner {
 
   MyState uniform_cost_search(MyState startState, MyState goalState) {
     TreeSet<MyState> frontier = new TreeSet<MyState>();
-    TreeSet<MyState> visited = new TreeSet<MyState>();
+    TreeMap<MyState> visited = new TreeMap<MyState>();
 
     startState.cost = 0.0;
     startState.parent = null;
@@ -18,17 +19,20 @@ class MyPlanner {
 
     while(frontier.size() > 0) {
 
-      // get lowest-cost state
+      // get the next state out of the priority queue
       MyState s = frontier.first();
 
+      // Check if we've reached the goal state
       if(s.state.equals(goalState.state))
         return s;
 
-      for(;;) { // each action, a {
-        MyState child = transition(s, a); // compute the next state
-        double acost = action_cost(s, a); // compute the cost of the action
+      for(int action = 0; action < 8; ++action) { // each action, a {
+        MyState child = transition(s, action); // compute the next state
+        double acost = action_cost(s, action); // compute the cost of the action
+
+        // Back-patching
         if(visited.contains(child)) {
-          MyState oldchild = visited.find(child);
+          MyState oldchild = visited.get(child);
 
           if(s.cost + acost < oldchild.cost) {
             oldchild.cost = s.cost + acost;
@@ -45,6 +49,14 @@ class MyPlanner {
     }
 
     throw new RuntimeException("There is no path to the goal");
+  }
+
+  MyState transition(MyState s, int action) {
+    return null;
+  }
+
+  double action_cost(MyState s, int action) {
+    return 0.0;
   }
 
 

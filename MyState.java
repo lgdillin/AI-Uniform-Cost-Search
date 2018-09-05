@@ -3,14 +3,17 @@ class MyState {
   public double cost;
   double heuristic;
   MyState parent;
-  State state;
+  // State state;
 
   MyState(double cost, MyState p) {
+    this.cost = cost;
     parent = p;
-
   }
 
-  double transition(State s, State there) {
-    return 0.0;
+  MyState(double cost, MyState p, float x, float y) {
+    this.cost = cost;
+    parent = p;
+    this.x = x;
+    this.y = y;
   }
 }

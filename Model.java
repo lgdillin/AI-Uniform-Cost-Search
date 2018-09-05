@@ -55,6 +55,15 @@ class Model {
 			return Math.max(0.2f, Math.min(3.5f, -0.01f * (terrain[pos + 1] & 0xff) + 0.02f * (terrain[pos + 3] & 0xff)));
 	}
 
+	float getHeuristic() {
+		float min = terrain[0];
+		for(int i = 1; i < terrain.length; ++i) {
+			if(terrain[i] < min)
+				min = terrain[i];
+		}
+		return min;
+	}
+
 	Controller getController() { return controller; }
 	float getX() { return sprites.get(0).x; }
 	float getY() { return sprites.get(0).y; }

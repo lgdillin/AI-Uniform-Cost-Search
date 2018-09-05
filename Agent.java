@@ -36,6 +36,7 @@ class Agent {
 			// goalx = e.getX();
 			// goaly = e.getY();
 			m.setDestination(e.getX(), e.getY());
+			// Put search algorithms here
 		}
 
 		// Search for path to goal

@@ -10,8 +10,6 @@ class MyState {
 
   }
 
-
-
   double transition(State s, State there) {
     return 0.0;
   }

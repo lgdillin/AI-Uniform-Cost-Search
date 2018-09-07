@@ -5,9 +5,19 @@ class MyState {
   MyState parent;
   // State state;
 
+  MyState(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
+
   MyState(double cost, MyState p) {
     this.cost = cost;
     parent = p;
+
+    if(p != null) {
+      this.x = parent.x;
+      this.y = parent.y;
+    }
   }
 
   MyState(double cost, MyState p, float x, float y) {
@@ -16,4 +26,5 @@ class MyState {
     this.x = x;
     this.y = y;
   }
+
 }

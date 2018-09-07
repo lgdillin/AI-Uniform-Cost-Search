@@ -122,8 +122,6 @@ class Agent {
 			}
 		}
 
-		return goalState;
-
 		throw new RuntimeException("There is no path to the goal");
 	}
 

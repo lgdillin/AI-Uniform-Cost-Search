@@ -5,6 +5,10 @@ class MyState {
   MyState parent;
   // State state;
 
+  MyState() {
+    
+  }
+
   MyState(float x, float y) {
     this.x = x;
     this.y = y;

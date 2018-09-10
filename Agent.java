@@ -4,12 +4,16 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.PriorityQueue;
+import java.util.Comparator;
+
 
 class Agent {
 	int paint;
 	float goalX, goalY;
 	MyState goalState;
-	TreeSet<MyState> frontier, visited;
+	TreeSet<MyState>  visited;
+	PriorityQueue<MyState> frontier;
 
 	Agent() {
 		paint = 0;
@@ -18,25 +22,20 @@ class Agent {
 
 	// Path Drawing happens here
 	void drawPlan(Graphics g, Model m) {
-		if(paint % 10 == 0) {
-			g.setColor(Color.red);
+		g.setColor(Color.red);
 
-			// Chain up a bunch of lines to make the squiggly line to the goal
-			MyState prev = goalState; // <-- deal with this
-			for(MyState s = goalState; s != null; s = s.parent) { // Read up on back-patching
-				g.drawLine((int)s.x, (int)s.y, (int)prev.x, (int)prev.y);
-				prev = s;
-			}
+		// Chain up a bunch of lines to make the squiggly line to the goal
+		MyState prev = goalState; // <-- deal with this
+		for(MyState s = goalState; s != null; s = s.parent) { // Read up on back-patching
+			g.drawLine((int)s.x, (int)s.y, (int)prev.x, (int)prev.y);
+			prev = s;
+		}
 
-			g.setColor(Color.yellow);
-			Iterator<MyState> it = frontier.iterator();
-			while(it.hasNext()) {
-				MyState s = it.next();
-				g.fillOval((int)(s.x), (int)(s.y), 10, 10);
-			}
-			paint = 0;
-		} else
-			++paint;
+		g.setColor(Color.yellow);
+		while(!frontier.isEmpty()) {
+			MyState s = frontier.remove();
+			g.fillOval((int)((s.x * 10) / 10), (int)((s.y * 10) / 10), 10, 10);
+		}
 
 	}
 
@@ -55,9 +54,12 @@ class Agent {
 			if(e == null)
 				break;
 
-			goalState.x = e.getX();
-			goalState.y = e.getY();
-			//m.setDestination(e.getX(), e.getY());
+			if(e.getButton() == MouseEvent.BUTTON1) {
+				goalState.x = e.getX();
+				goalState.y = e.getY();
+			} else if(e.getButton() == MouseEvent.BUTTON2) {
+
+			}
 		}
 
 		// goalState is the most child, and following each parent takes us back to our starting position
@@ -74,9 +76,10 @@ class Agent {
 
 	MyState uniformCostSearch(MyState startState, MyState goalState, Model m) {
 		StateComparator sc = new StateComparator();
+		//
 		CostComparator cc = new CostComparator();
 
-		frontier = new TreeSet<MyState>(cc);
+		frontier = new PriorityQueue<MyState>(cc);
 		visited = new TreeSet<MyState>(sc);
 		visited.add(startState);
 		frontier.add(startState);
@@ -85,7 +88,7 @@ class Agent {
 		while(frontier.size() > 0) {
 
 			// get the next state out of the priority queue
-			MyState s = frontier.pollFirst();
+			MyState s = frontier.poll();
 			//MyState s = frontier.first();
 
 			// Check if we've reached the goal state
@@ -101,14 +104,14 @@ class Agent {
 				if(visited.contains(child)) {
 					MyState oldChild = visited.floor(child);
 					// Check to see if oldChild is the one we're looking for
-					if(equalStates(oldChild, child)) {
-
-					} else {
+					// if(compareCosts(oldChild, child)) {
 						if(s.cost + acost < oldChild.cost) {
 							oldChild.cost = s.cost + acost;
 							oldChild.parent = s;
 						}
-					}
+					// } else { }
+
+					// System.out.print(" " + frontier.size());
 
 				} else {
 					child.cost = s.cost + acost;
@@ -118,6 +121,12 @@ class Agent {
 				}
 
 			}
+		}
+		if(true) {
+			//System.out.println(frontier.size());
+			//System.exit(0);
+			throw new RuntimeException("There is no path to the goal");
+
 		}
 
 		throw new RuntimeException("There is no path to the goal");
@@ -155,7 +164,6 @@ class Agent {
 		if(newMyState.x >= 1200) newMyState.x = 1199;
 		if(newMyState.y >= 600) newMyState.y = 599;
 
-
 		return newMyState;
 	}
 
@@ -191,8 +199,45 @@ class Agent {
 		else return false;
 	}
 
+	// Compare two states and see if they are equal
+	boolean compareCosts(MyState a, MyState b) {
+		if(a.cost < b.cost) return true;
+		else return false;
+	}
+
 	public static void main(String[] args) throws Exception
 	{
 		Controller.playGame();
 	}
+}
+
+class CostComparator implements Comparator<MyState> {
+
+  public int compare(MyState a, MyState b) {
+    if(a.cost < b.cost) return -1;
+    else if(a.cost > b.cost ) return 1;
+    else return 0;
+  }
+}
+
+class AStar_CostComparator implements Comparator<MyState> {
+	double aheuristic, bheuristic;
+	static MyState goalState;
+	static double lowestCost;
+
+  AStar_CostComparator(MyState gs, double lc) {
+		goalState = gs;
+		lowestCost = lc;
+  }
+
+  public int compare(MyState a, MyState b) {
+
+		// Calculate heuristics
+
+
+
+    if(a.cost + aheuristic < b.cost + b.heuristic) return -1;
+    else if(a.cost + bheuristic > b.cost + b.heuristic) return 1;
+    else return 0;
+  }
 }

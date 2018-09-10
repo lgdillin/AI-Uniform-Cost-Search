@@ -6,7 +6,12 @@ class MyState {
   // State state;
 
   MyState() {
-    
+
+  }
+
+  MyState(MyState p) {
+    this.x = p.x;
+    this.y = p.y;
   }
 
   MyState(float x, float y) {

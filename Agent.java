@@ -95,7 +95,7 @@ class Agent {
 			// Compute the cost of taking a step in each of the 8 adjacent directions
 			for(int action = 0; action < 8; ++action) {
 				MyState child = transition(s, action); // compute the next state
-				double acost = actionCost(child, action, m); // compute the cost of the action
+				double acost = actionCost(child, m); // compute the cost of the action
 
 				// Back-patching
 				if(visited.contains(child)) {
@@ -125,7 +125,7 @@ class Agent {
 
 	// Compute the state for a given action
 	MyState transition(MyState s, int action) {
-		MyState newMyState = new MyState(0.0f, s);
+		MyState newMyState = new MyState(s);
 
 		if(action == 0) { // Move Right
 			newMyState.x += 10.0f;
@@ -147,8 +147,6 @@ class Agent {
 		} else if(action == 7) { // Move Right - Up
 			newMyState.x += 10.0f;
 			newMyState.y += -10.0f;
-		} else {
-			throw new RuntimeException("Invalid direction: " + action);
 		}
 
 		// Safety first!
@@ -162,7 +160,7 @@ class Agent {
 	}
 
 	// Calculate the cost of moving to a given state
-	double actionCost(MyState s, int action, Model m) {
+	double actionCost(MyState s, Model m) {
 		//double cost = (m.getDistanceToDestination(0) / m.getTravelSpeed(s.x, s.y));
 		double cost = (1.0f / m.getTravelSpeed(s.x, s.y));
 		return cost;

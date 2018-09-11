@@ -1,7 +1,6 @@
 class MyState {
   float x, y;
   public double cost;
-  double heuristic;
   MyState parent;
   // State state;
 

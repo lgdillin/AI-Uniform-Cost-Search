@@ -9,15 +9,18 @@ import java.util.Comparator;
 
 
 class Agent {
-	int paint;
+	boolean aStar;
 	float goalX, goalY;
 	MyState goalState;
-	TreeSet<MyState>  visited;
+	TreeSet<MyState> visited;
 	PriorityQueue<MyState> frontier;
+	StateComparator sc;
+	CostComparator cc;
+	AStar_CostComparator acc;
 
 	Agent() {
-		paint = 0;
 		goalState = new MyState(-1, -1);
+		aStar = false;
 	}
 
 	// Path Drawing happens here
@@ -42,6 +45,9 @@ class Agent {
 	// Searching happens here
 	void update(Model m)
 	{
+		// I don't think we're supposed to do this every frame
+		double minCost = 0.0f;
+
 		// Initialization
 		if(goalState.x == -1 && goalState.y == -1)
 			goalState = new MyState(m.getX(), m.getY());
@@ -54,18 +60,23 @@ class Agent {
 			if(e == null)
 				break;
 
+			goalState.x = e.getX();
+			goalState.y = e.getY();
 			if(e.getButton() == MouseEvent.BUTTON1) {
-				goalState.x = e.getX();
-				goalState.y = e.getY();
-			} else if(e.getButton() == MouseEvent.BUTTON2) {
-
+				aStar = false;
+			} else if(e.getButton() == MouseEvent.BUTTON3) {
+				aStar = true;
+				minCost = getHeuristic(m);
 			}
 		}
+
+		if(aStar) minCost = getHeuristic(m);
+
 
 		// goalState is the most child, and following each parent takes us back to our starting position
 		MyState startState = new MyState(0.0, null, m.getX(), m.getY());
 
-		goalState = uniformCostSearch(startState, goalState, m); // <-- This object is our goal
+		goalState = uniformCostSearch(startState, goalState, m, aStar, minCost); // <-- This object is our goal
 		// find_next_state it starts at goal state and followers parents' back to the start+1 and returns that as next state
 		MyState nextState = findNextState(startState, goalState);
 
@@ -74,22 +85,26 @@ class Agent {
 
 	}
 
-	MyState uniformCostSearch(MyState startState, MyState goalState, Model m) {
-		StateComparator sc = new StateComparator();
-		//
-		CostComparator cc = new CostComparator();
+	MyState uniformCostSearch(MyState startState, MyState goalState, Model m, boolean aStar, double minCost) {
+		StateComparator sc = new StateComparator(); // We can have this comparator here, since it is shared
 
-		frontier = new PriorityQueue<MyState>(cc);
-		visited = new TreeSet<MyState>(sc);
+		if(aStar) {
+			acc = new AStar_CostComparator(goalState, minCost);
+			frontier = new PriorityQueue<MyState>(acc);
+			visited = new TreeSet<MyState>(sc);
+		} else {
+			cc = new CostComparator();
+			frontier = new PriorityQueue<MyState>(cc);
+			visited = new TreeSet<MyState>(sc);
+		}
+
 		visited.add(startState);
 		frontier.add(startState);
-
 
 		while(frontier.size() > 0) {
 
 			// get the next state out of the priority queue
 			MyState s = frontier.poll();
-			//MyState s = frontier.first();
 
 			// Check if we've reached the goal state
 			if(equalStates(s, goalState))
@@ -123,7 +138,6 @@ class Agent {
 			}
 		}
 		if(true) {
-			//System.out.println(frontier.size());
 			//System.exit(0);
 			throw new RuntimeException("There is no path to the goal");
 
@@ -205,6 +219,17 @@ class Agent {
 		else return false;
 	}
 
+	// Get the lowest cost state
+	float getHeuristic(Model m) {
+		byte[] terrain = m.getTerrain();
+		float min = terrain[0];
+		for(int i = 1; i < terrain.length; ++i) {
+			if(terrain[i] < min)
+				min = terrain[i];
+		}
+		return min;
+	}
+
 	public static void main(String[] args) throws Exception
 	{
 		Controller.playGame();
@@ -234,10 +259,13 @@ class AStar_CostComparator implements Comparator<MyState> {
 
 		// Calculate heuristics
 
+		// Take euclidean distance and multiply times lowest cost on map
+		//System.out.println(lowestCost);
+		aheuristic = 1.0f / (Math.sqrt((a.x - goalState.x) * (a.x - goalState.x) + (a.y - goalState.y) * (a.y - goalState.y))) * lowestCost;
+		bheuristic = 1.0f / (Math.sqrt((b.x - goalState.x) * (b.x - goalState.x) + (b.y - goalState.y) * (b.y - goalState.y))) * lowestCost;
 
-
-    if(a.cost + aheuristic < b.cost + b.heuristic) return -1;
-    else if(a.cost + bheuristic > b.cost + b.heuristic) return 1;
+    if(a.cost + aheuristic < b.cost + bheuristic) return -1;
+    else if(a.cost + aheuristic > b.cost + bheuristic) return 1;
     else return 0;
   }
 }
